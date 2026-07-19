@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block titre %}Résultat{% endblock %}
+{% block contenu %}
+<div class="carte" style="text-align:center;padding:44px 24px;">
+  <span class="oeil" style="display:block;">{{ exercice.get_type_exercice_display }}</span>
+  <h1>{{ exercice.titre }}</h1>
+
+  <div class="tampon">
+    <span class="score-valeur">{{ tentative.score_obtenu }}</span>
+    <span class="score-total">/ {{ exercice.total_points }}</span>
+    <span class="score-label">Résultat</span>
+  </div>
+
+  {% if exercice.a_correction_manuelle %}
+    <p class="muted" style="max-width:380px;margin:0 auto 18px;">Ce score peut encore évoluer : certaines questions seront notées manuellement par ton enseignant.</p>
+  {% endif %}
+
+  <div>
+    <a class="bouton" href="{% url 'liste_exercices' %}">Retour aux exercices</a>
+  </div>
+</div>
+{% endblock %}

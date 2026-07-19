@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block titre %}Tableau de bord{% endblock %}
+{% block contenu %}
+<div class="entete-page">
+  <span class="oeil">{% now "l j F" %}</span>
+  <h1>Bonjour {{ user.first_name|default:user.username }}</h1>
+</div>
+
+<div class="carte">
+  <h3>Exercices à faire</h3>
+  {% if exercices_a_faire %}
+    {% for e in exercices_a_faire %}
+      <p style="margin:10px 0;">
+        <span class="badge badge-{{ e.type_exercice }}">{{ e.get_type_exercice_display }}</span>
+        <a href="{% url 'detail_exercice' e.id %}" style="font-weight:600;margin-left:6px;">{{ e.titre }}</a>
+        <span class="points-tag" style="margin-left:6px;">{{ e.total_points }} pts</span>
+      </p>
+    {% endfor %}
+  {% else %}
+    <p class="muted">Tout est à jour, bravo !</p>
+  {% endif %}
+  <a class="bouton-discret" href="{% url 'liste_exercices' %}">Voir tous les exercices →</a>
+</div>
+
+<div class="carte">
+  <h3>Derniers résultats</h3>
+  {% if derniers_resultats %}
+    <table>
+      <tr><th>Exercice</th><th>Score</th><th>Date</th></tr>
+      {% for t in derniers_resultats %}
+        <tr>
+          <td>{{ t.exercice.titre }}</td>
+          <td class="mono">{{ t.score_obtenu }} / {{ t.exercice.total_points }}</td>
+          <td class="muted mono">{{ t.date_soumission|date:"d/m/Y H:i" }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p class="muted">Aucun exercice terminé pour l'instant.</p>
+  {% endif %}
+</div>
+
+<div class="carte">
+  <h3>Devoirs en cours</h3>
+  {% if devoirs_actifs %}
+    {% for d in devoirs_actifs %}
+      <p style="margin:10px 0;"><a href="{% url 'envoyer_devoir' d.id %}" style="font-weight:600;">{{ d.titre }}</a></p>
+    {% endfor %}
+  {% else %}
+    <p class="muted">Aucun devoir en attente.</p>
+  {% endif %}
+  <a class="bouton-discret" href="{% url 'liste_devoirs' %}">Voir tous les devoirs →</a>
+</div>
+
+<div class="carte">
+  <h3>Cours récents</h3>
+  {% if cours_recents %}
+    {% for c in cours_recents %}
+      <p style="margin:10px 0;">
+        <span class="badge badge-fichier">{{ c.get_type_fichier_display }}</span>
+        <span style="margin-left:6px;">{{ c.titre }}</span>
+      </p>
+    {% endfor %}
+  {% endif %}
+  <a class="bouton-discret" href="{% url 'liste_cours' %}">Voir tous les cours →</a>
+</div>
+{% endblock %}

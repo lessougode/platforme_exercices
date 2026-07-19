@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block titre %}Historique{% endblock %}
+{% block contenu %}
+<div class="entete-page">
+  <span class="oeil">Suivi</span>
+  <h1>Historique de mes travaux</h1>
+</div>
+
+<div class="carte">
+  <h3>Exercices réalisés</h3>
+  <table>
+    <tr><th>Exercice</th><th>Type</th><th>Score</th><th>Date</th><th></th></tr>
+    {% for t in tentatives %}
+      <tr>
+        <td style="font-weight:600;">{{ t.exercice.titre }}</td>
+        <td><span class="badge badge-{{ t.exercice.type_exercice }}">{{ t.exercice.get_type_exercice_display }}</span></td>
+        <td class="mono">{{ t.score_obtenu }} / {{ t.exercice.total_points }}</td>
+        <td class="muted mono">{{ t.date_soumission|date:"d/m/Y H:i" }}</td>
+        <td><a class="bouton-discret" href="{% url 'revoir_tentative' t.id %}">Revoir</a></td>
+      </tr>
+    {% empty %}<tr><td colspan="5" class="muted">Aucun exercice terminé.</td></tr>{% endfor %}
+  </table>
+</div>
+
+<div class="carte">
+  <h3>Devoirs envoyés</h3>
+  <table>
+    <tr><th>Devoir</th><th>Date d'envoi</th><th>Note</th><th>Statut</th><th></th></tr>
+    {% for r in rendus %}
+      <tr>
+        <td style="font-weight:600;">{{ r.devoir.titre }}</td>
+        <td class="muted mono">{{ r.date_soumission|date:"d/m/Y H:i" }}</td>
+        <td class="mono">{{ r.note|default:"—" }}</td>
+        <td>
+          {% if r.corrige %}<span class="badge" style="background:var(--green-bg);color:var(--green);">Corrigé</span>
+          {% else %}<span class="badge" style="background:var(--paper-2);color:var(--ink-soft);">En attente</span>{% endif %}
+        </td>
+        <td>{% if r.fichier %}<a class="bouton-discret" href="{{ r.fichier.url }}" target="_blank">Fichier</a>{% endif %}</td>
+      </tr>
+    {% empty %}<tr><td colspan="5" class="muted">Aucun devoir envoyé.</td></tr>{% endfor %}
+  </table>
+</div>
+{% endblock %}

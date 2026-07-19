@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block titre %}Exports{% endblock %}
+{% block contenu %}
+<div class="entete-page">
+  <span class="oeil">Espace admin</span>
+  <h1>Exports</h1>
+</div>
+
+<div class="carte">
+  <h3>Liste des étudiants</h3>
+  <p class="muted">Nom, prénom, identifiant, groupe, classe, email, téléphone — sans les notes.</p>
+  <form method="get" style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+    <div>
+      <label class="muted" style="display:block;margin-bottom:4px;">Groupe (optionnel)</label>
+      <select id="groupe-etudiants">
+        <option value="">Tous les groupes</option>
+        {% for g in groupes %}<option value="{{ g.id }}">{{ g.nom }}</option>{% endfor %}
+      </select>
+    </div>
+    <a class="bouton" id="lien-excel-etudiants" href="{% url 'export_etudiants' 'excel' %}">Exporter en Excel</a>
+    <a class="bouton" id="lien-pdf-etudiants" href="{% url 'export_etudiants' 'pdf' %}">Exporter en PDF</a>
+  </form>
+</div>
+
+<div class="carte">
+  <h3>Bulletin (notes, coefficients, moyenne, rang)</h3>
+  <p class="muted">Calculé à partir des exercices et devoirs corrigés de la période choisie.</p>
+  <form style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+    <div>
+      <label class="muted" style="display:block;margin-bottom:4px;">Période *</label>
+      <select id="periode-bulletin" required>
+        <option value="">-- Choisir --</option>
+        {% for p in periodes %}<option value="{{ p.id }}">{{ p.nom }}</option>{% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="muted" style="display:block;margin-bottom:4px;">Groupe (optionnel)</label>
+      <select id="groupe-bulletin">
+        <option value="">Tous les groupes</option>
+        {% for g in groupes %}<option value="{{ g.id }}">{{ g.nom }}</option>{% endfor %}
+      </select>
+    </div>
+    <a class="bouton" id="lien-excel-bulletin" href="#">Exporter en Excel</a>
+    <a class="bouton" id="lien-pdf-bulletin" href="#">Exporter en PDF</a>
+  </form>
+  {% if not periodes %}
+    <p class="muted" style="margin-top:12px;">Aucune période créée pour l'instant — ajoutes-en une dans <code>/admin/scolarite/periode/</code>.</p>
+  {% endif %}
+</div>
+
+<script>
+function maj(prefixe, urlBase, exigePeriode) {
+  const groupeSel = document.getElementById('groupe-' + prefixe);
+  const periodeSel = document.getElementById('periode-' + prefixe);
+  const excel = document.getElementById('lien-excel-' + prefixe);
+  const pdf = document.getElementById('lien-pdf-' + prefixe);
+
+  function construire() {
+    const params = new URLSearchParams();
+    if (groupeSel && groupeSel.value) params.set('groupe', groupeSel.value);
+    if (periodeSel) {
+      if (!periodeSel.value) { excel.href = '#'; pdf.href = '#'; return; }
+      params.set('periode', periodeSel.value);
+    }
+    excel.href = urlBase + 'excel/?' + params.toString();
+    pdf.href = urlBase + 'pdf/?' + params.toString();
+  }
+  if (groupeSel) groupeSel.addEventListener('change', construire);
+  if (periodeSel) periodeSel.addEventListener('change', construire);
+  construire();
+}
+maj('etudiants', "{% url 'export_etudiants' 'excel' %}".replace('excel/', ''), false);
+maj('bulletin', "{% url 'export_bulletin' 'excel' %}".replace('excel/', ''), true);
+</script>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block titre %}Cours{% endblock %}
+{% block contenu %}
+<div class="entete-page">
+  <span class="oeil">Ressources</span>
+  <h1>Cours</h1>
+</div>
+
+{% for c in cours %}
+  <div class="carte-ticket">
+    <div class="entete-ticket">
+      <div>
+        <span class="badge badge-fichier">{{ c.get_type_fichier_display }}</span>
+        <h3 style="margin-top:8px;">{{ c.titre }}</h3>
+      </div>
+    </div>
+    <p class="muted" style="margin-bottom:14px;">{{ c.description }}</p>
+    <a class="bouton" href="{{ c.fichier.url }}" target="_blank">Ouvrir / télécharger</a>
+  </div>
+{% empty %}
+  <p class="vide">Aucun cours disponible pour le moment.</p>
+{% endfor %}
+{% endblock %}

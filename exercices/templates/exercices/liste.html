@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block titre %}Exercices{% endblock %}
+{% block contenu %}
+<div class="entete-page">
+  <span class="oeil">Salle d'exercices</span>
+  <h1>Exercices</h1>
+</div>
+
+{% for e in exercices %}
+  <div class="carte-ticket">
+    <div class="entete-ticket">
+      <div>
+        <span class="badge badge-{{ e.type_exercice }}">{{ e.get_type_exercice_display }}</span>
+        <h3 style="margin-top:8px;">{{ e.titre }}</h3>
+      </div>
+      <span class="points-tag">{{ e.total_points }} pts</span>
+    </div>
+    <p class="muted" style="margin-bottom:14px;">{{ e.description }}</p>
+    {% if e.tentative_etudiant %}
+      <p class="mono" style="color:var(--green);font-weight:600;font-size:0.9em;">✓ Terminé — {{ e.tentative_etudiant.score_obtenu }} / {{ e.total_points }}</p>
+      <a class="bouton" href="{% url 'revoir_tentative' e.tentative_etudiant.id %}">Revoir mes réponses</a>
+    {% else %}
+      <a class="bouton" href="{% url 'detail_exercice' e.id %}">Commencer</a>
+    {% endif %}
+  </div>
+{% empty %}
+  <p class="vide">Aucun exercice disponible pour le moment.</p>
+{% endfor %}
+{% endblock %}

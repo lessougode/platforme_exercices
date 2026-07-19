@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block titre %}Connexion{% endblock %}
+{% block contenu %}
+<div style="max-width:400px;margin:40px auto 0;">
+  <div style="text-align:center;margin-bottom:24px;">
+    <div style="font-family:'Fraunces',serif;font-size:1rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:6px;">Mon espace</div>
+    <h1 style="font-size:1.7rem;">Connexion</h1>
+    <p class="muted">Entre les identifiants qui t'ont été communiqués</p>
+  </div>
+
+  <div class="carte">
+    {% if form.errors %}
+      <p style="color:var(--red);background:var(--red-bg);padding:10px 14px;border-radius:8px;font-size:0.9em;margin-top:0;">
+        Identifiant ou mot de passe incorrect.
+      </p>
+    {% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <p>
+        <label class="muted" style="display:block;margin-bottom:5px;">Nom d'utilisateur</label>
+        <input type="text" name="username" required style="width:100%;">
+      </p>
+      <p>
+        <label class="muted" style="display:block;margin-bottom:5px;">Mot de passe</label>
+        <input type="password" name="password" required style="width:100%;">
+      </p>
+      <button type="submit" class="bouton" style="width:100%;justify-content:center;margin-top:8px;">Se connecter</button>
+      <input type="hidden" name="next" value="{{ next }}">
+    </form>
+  </div>
+</div>
+{% endblock %}

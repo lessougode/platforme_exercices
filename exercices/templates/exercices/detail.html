@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block titre %}{{ exercice.titre }}{% endblock %}
+{% block contenu %}
+<div class="carte" style="border-left:4px solid var(--gold);">
+  <span class="badge badge-{{ exercice.type_exercice }}">{{ exercice.get_type_exercice_display }}</span>
+  <h1 style="margin-top:10px;">{{ exercice.titre }}</h1>
+  <p class="muted">{{ exercice.description }}</p>
+  <p class="points-tag">Total : {{ exercice.total_points }} points</p>
+
+  {% if exercice.image_support %}
+    <img src="{{ exercice.image_support.url }}" alt="Support de l'exercice" style="max-width:100%;border-radius:8px;margin-top:14px;border:1px solid var(--line);">
+  {% endif %}
+  {% if exercice.texte_support %}
+    <div style="white-space: pre-line;background:var(--paper);border-left:3px solid var(--ink-2);padding:14px 18px;margin-top:14px;border-radius:0 8px 8px 0;font-family:'Fraunces',serif;font-size:0.98em;">{{ exercice.texte_support }}</div>
+  {% endif %}
+</div>
+
+<form method="post" action="{% url 'soumettre_exercice' exercice.id %}" enctype="multipart/form-data">
+  {% csrf_token %}
+  {% for q in questions %}
+    <div class="carte question">
+      <p><span class="numero-question">{{ forloop.counter }}</span><span class="points-tag">{{ q.points }} pt{{ q.points|pluralize }}</span></p>
+      <p style="white-space: pre-line;font-size:1.02em;">{{ q.enonce }}</p>
+      {% if q.image %}
+        <img src="{{ q.image.url }}" alt="Illustration de la question" style="max-width:100%;border-radius:8px;margin:10px 0;border:1px solid var(--line);">
+      {% endif %}
+
+      {% if q.type_question == 'qcm' %}
+        {% if q.type_reponse_qcm == 'unique' %}
+          <p class="muted">Choisis une seule réponse :</p>
+          {% for c in q.choix.all %}
+            <label class="option">
+              <input type="radio" name="question_{{ q.id }}" value="{{ c.id }}" required> {{ c.texte }}
+              {% if c.image %}<br><img src="{{ c.image.url }}" alt="" style="max-width:250px;margin:6px 0 0 22px;border-radius:6px;">{% endif %}
+            </label>
+          {% endfor %}
+        {% else %}
+          <p class="muted">Choisis une ou plusieurs réponses :</p>
+          {% for c in q.choix.all %}
+            <label class="option">
+              <input type="checkbox" name="question_{{ q.id }}" value="{{ c.id }}"> {{ c.texte }}
+              {% if c.image %}<br><img src="{{ c.image.url }}" alt="" style="max-width:250px;margin:6px 0 0 22px;border-radius:6px;">{% endif %}
+            </label>
+          {% endfor %}
+        {% endif %}
+
+      {% elif q.type_question == 'appariement' %}
+        {% for p in q.paires.all %}
+          <div style="margin:12px 0;padding:10px 14px;background:var(--paper);border-radius:8px;">
+            {% if p.image_gauche %}
+              <img src="{{ p.image_gauche.url }}" alt="" style="max-width:200px;display:block;margin-bottom:6px;border-radius:6px;">
+            {% endif %}
+            <span style="font-weight:600;">{{ p.element_gauche }}</span> →
+            <select name="question_{{ q.id }}_paire_{{ p.id }}">
+              <option value="">-- Choisir --</option>
+              {% for option in q.options_appariement %}
+                <option value="{{ option }}">{{ option }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        {% endfor %}
+
+      {% elif q.type_question == 'texte_trou' %}
+        {% for t in q.trous.all %}
+          <p>Trou <span class="mono">{{ t.position }}</span> :
+            <input type="text" name="question_{{ q.id }}_trou_{{ t.position }}" placeholder="réponse">
+          </p>
+        {% endfor %}
+
+      {% elif q.type_question == 'reponse_libre' %}
+        <p class="muted">Réponse rédigée (notée manuellement) :</p>
+        <textarea name="question_{{ q.id }}" rows="8" style="width:100%;" placeholder="Écris ta réponse ici..."></textarea>
+      {% endif %}
+    </div>
+  {% endfor %}
+
+  <button type="submit" class="bouton">Valider le devoir</button>
+</form>
+{% endblock %}

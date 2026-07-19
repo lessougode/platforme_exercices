@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block titre %}Envoyer un devoir{% endblock %}
+{% block contenu %}
+<div class="carte" style="border-left:4px solid var(--gold);">
+  <h1>{{ devoir.titre }}</h1>
+  <p class="muted" style="white-space: pre-line;">{{ devoir.consignes }}</p>
+  {% if devoir.fichier_consigne %}<a class="bouton-discret" href="{{ devoir.fichier_consigne.url }}" target="_blank">Télécharger la consigne</a>{% endif %}
+
+  <form method="post" enctype="multipart/form-data" style="margin-top:20px;">
+    {% csrf_token %}
+    <p>
+      <label style="display:block;margin-bottom:6px;font-weight:600;">Réponse rédigée</label>
+      <span class="muted" style="display:block;margin-bottom:8px;">Pour une dissertation, un commentaire de texte...</span>
+      <textarea name="texte_reponse" rows="10" style="width:100%;" placeholder="Rédige ta réponse ici si tu n'envoies pas de fichier..."></textarea>
+    </p>
+    <p style="text-align:center;color:var(--ink-soft);margin:16px 0;font-family:'Fraunces',serif;font-style:italic;">— et / ou —</p>
+    <p>
+      <label style="display:block;margin-bottom:6px;font-weight:600;">Fichier</label>
+      <span class="muted" style="display:block;margin-bottom:8px;">PDF, Word, .py ou image</span>
+      <input type="file" name="fichier" accept=".pdf,.doc,.docx,.py,.jpg,.jpeg,.png">
+    </p>
+    <p>
+      <label style="display:block;margin-bottom:6px;font-weight:600;">Commentaire</label>
+      <textarea name="commentaire" rows="3" style="width:100%;"></textarea>
+    </p>
+    <button type="submit" class="bouton">Envoyer</button>
+  </form>
+</div>
+{% endblock %}

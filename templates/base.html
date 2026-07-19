@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block titre %}Mon espace{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1c2b45;
+    --ink-2: #33456b;
+    --ink-soft: #6b7690;
+    --paper: #faf7f0;
+    --paper-2: #f1ebda;
+    --card: #fffdf9;
+    --gold: #b8902f;
+    --gold-deep: #8a6a1f;
+    --green: #2f6f52;
+    --green-bg: #e9f2ec;
+    --red: #a83a3a;
+    --red-bg: #f7ebe9;
+    --line: #e3dcc9;
+    --radius: 12px;
+    --shadow: 0 2px 10px rgba(28,43,69,0.07), 0 1px 2px rgba(28,43,69,0.06);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    margin: 0;
+    background: var(--paper);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(28,43,69,0.05) 1px, transparent 0);
+    background-size: 22px 22px;
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  h1, h2, h3 { font-family: 'Fraunces', serif; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); margin: 0 0 8px; }
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.4rem; }
+  h3 { font-size: 1.15rem; margin-bottom: 6px; }
+  a { color: var(--ink-2); }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ===== En-tete ===== */
+  header {
+    background: var(--ink);
+    color: #f4f0e4;
+    padding: 0 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    position: sticky; top: 0; z-index: 20;
+  }
+  .logo {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: #fff;
+    letter-spacing: -0.01em;
+    padding: 16px 0;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .logo::before { content: "✎"; color: var(--gold); font-size: 1.1em; }
+  nav.principale { display: flex; align-items: center; gap: 4px; }
+  nav.principale a {
+    color: #cfd6e8; text-decoration: none; font-size: 0.92em;
+    padding: 8px 14px; border-radius: 6px; transition: color .15s, background .15s;
+    border-bottom: 2px solid transparent;
+  }
+  nav.principale a:hover { color: #fff; background: rgba(255,255,255,0.06); }
+  .zone-compte { display: flex; align-items: center; gap: 14px; }
+  .zone-compte span { color: #cfd6e8; font-size: 0.9em; }
+  .lien-deconnexion {
+    background: none; border: 1px solid rgba(255,255,255,0.25); color: #f4f0e4;
+    padding: 6px 12px; border-radius: 20px; cursor: pointer; font-size: 0.85em;
+    transition: background .15s;
+  }
+  .lien-deconnexion:hover { background: rgba(255,255,255,0.1); }
+
+  /* ===== Layout ===== */
+  .conteneur { max-width: 900px; margin: 0 auto; padding: 32px 20px 60px; }
+  .entete-page { margin-bottom: 24px; }
+  .entete-page .oeil { font-family: 'JetBrains Mono', monospace; font-size: 0.78em; text-transform: uppercase; letter-spacing: 0.09em; color: var(--gold-deep); margin-bottom: 4px; display: block; }
+
+  /* ===== Cartes ===== */
+  .carte {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+  }
+
+  /* Carte "ticket d'examen" avec bord perfore, pour exercices / devoirs / cours */
+  .carte-ticket {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px 26px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    position: relative;
+    border-left: 4px solid var(--gold);
+  }
+  .carte-ticket::after {
+    content: "";
+    position: absolute; top: 0; bottom: 0; right: 0; width: 26px;
+    background-image: radial-gradient(circle 3px, var(--paper) 3px, transparent 3.5px);
+    background-position: right 10px top 4px;
+    background-size: 18px 18px;
+    background-repeat: repeat-y;
+    opacity: 0.9;
+  }
+  .carte-ticket .entete-ticket { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 6px; }
+
+  /* ===== Badges type d'exercice ===== */
+  .badge {
+    display: inline-block; padding: 3px 11px; border-radius: 20px;
+    font-size: 0.72em; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+    font-family: 'Inter', sans-serif;
+  }
+  .badge-fixation { background: #e4e9f4; color: var(--ink-2); }
+  .badge-approfondissement { background: #f4e9d4; color: var(--gold-deep); }
+  .badge-reflexion { background: var(--green-bg); color: var(--green); }
+  .badge-fichier { background: var(--paper-2); color: var(--ink-soft); }
+
+  /* ===== Points / scores ===== */
+  .points {
+    font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--gold-deep);
+    font-size: 0.92em;
+  }
+  .points-tag {
+    font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85em;
+    background: var(--paper-2); color: var(--gold-deep); border: 1px solid var(--line);
+    padding: 3px 10px; border-radius: 8px; white-space: nowrap;
+  }
+
+  /* ===== Boutons ===== */
+  a.bouton, button.bouton {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--ink); color: #fff; border: none;
+    padding: 10px 20px; border-radius: 8px; text-decoration: none; cursor: pointer;
+    font-size: 0.92em; font-weight: 600; font-family: 'Inter', sans-serif;
+    transition: background .15s, transform .1s;
+  }
+  a.bouton:hover, button.bouton:hover { background: var(--ink-2); }
+  a.bouton:active, button.bouton:active { transform: translateY(1px); }
+  a.bouton-discret {
+    display: inline-block; color: var(--ink-2); text-decoration: none; font-size: 0.9em;
+    font-weight: 600; border-bottom: 1px solid var(--line); padding-bottom: 1px;
+  }
+  a.bouton-discret:hover { border-color: var(--ink-2); }
+
+  /* ===== Questions ===== */
+  .question { border-top: 1px solid var(--line); padding-top: 18px; }
+  .numero-question {
+    font-family: 'Fraunces', serif; font-size: 1.3rem; color: var(--gold-deep);
+    font-weight: 600; margin-right: 6px;
+  }
+  label.option {
+    display: block; margin: 8px 0; padding: 10px 14px;
+    border: 1px solid var(--line); border-radius: 8px; background: var(--paper);
+    cursor: pointer; transition: border-color .12s, background .12s;
+  }
+  label.option:hover { border-color: var(--gold); background: #fdf9ef; }
+
+  /* ===== Formulaires ===== */
+  input[type=text], input[type=password], input[type=file], select, textarea {
+    padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px;
+    font-family: 'Inter', sans-serif; font-size: 0.95em; background: #fff; color: var(--ink);
+  }
+  input[type=text]:focus, input[type=password]:focus, select:focus, textarea:focus {
+    outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184,144,47,0.15);
+  }
+  input[type=checkbox], input[type=radio] { accent-color: var(--ink); }
+
+  /* ===== Messages ===== */
+  .messages { list-style: none; padding: 0; }
+  .messages li {
+    background: var(--green-bg); color: var(--green); padding: 10px 16px;
+    border-radius: 8px; margin-bottom: 12px; font-size: 0.92em; border: 1px solid #cfe4d8;
+  }
+
+  /* ===== Tables ===== */
+  table { width: 100%; border-collapse: collapse; }
+  table th {
+    text-align: left; padding: 10px 8px; font-family: 'Inter', sans-serif;
+    font-size: 0.78em; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft);
+    border-bottom: 2px solid var(--line);
+  }
+  table td { padding: 12px 8px; border-bottom: 1px solid var(--line); font-size: 0.94em; }
+  table tr:last-child td { border-bottom: none; }
+
+  /* ===== Tampon de score (signature) ===== */
+  .tampon {
+    display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 148px; height: 148px; border-radius: 50%;
+    border: 3px solid var(--gold); color: var(--gold-deep);
+    transform: rotate(-6deg);
+    font-family: 'JetBrains Mono', monospace;
+    margin: 12px 0;
+    position: relative;
+  }
+  .tampon::before {
+    content: "";
+    position: absolute; inset: 8px; border-radius: 50%; border: 1px dashed var(--gold);
+  }
+  .tampon .score-valeur { font-size: 1.7rem; font-weight: 700; line-height: 1.1; }
+  .tampon .score-total { font-size: 0.85rem; opacity: 0.85; }
+  .tampon .score-label {
+    font-family: 'Inter', sans-serif; font-size: 0.62rem; text-transform: uppercase;
+    letter-spacing: 0.08em; margin-top: 3px; font-weight: 600;
+  }
+
+  /* ===== Divers ===== */
+  .muted { color: var(--ink-soft); font-size: 0.9em; }
+  .vide {
+    text-align: center; padding: 50px 20px; color: var(--ink-soft);
+    font-family: 'Fraunces', serif; font-size: 1.1rem; font-style: italic;
+  }
+
+  @media (max-width: 640px) {
+    header { padding: 0 16px; flex-direction: column; align-items: stretch; }
+    nav.principale { flex-wrap: wrap; padding-bottom: 10px; }
+    .conteneur { padding: 22px 14px 50px; }
+    .tampon { width: 120px; height: 120px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <a href="{% url 'tableau_de_bord' %}" class="logo">Mon espace</a>
+  {% if user.is_authenticated %}
+  <nav class="principale">
+    <a href="{% url 'liste_cours' %}">Cours</a>
+    <a href="{% url 'liste_exercices' %}">Exercices</a>
+    <a href="{% url 'liste_devoirs' %}">Devoirs</a>
+    <a href="{% url 'historique' %}">Historique</a>
+    {% if user.is_staff %}<a href="{% url 'rapports_formulaire' %}">Exports</a>{% endif %}
+  </nav>
+  <div class="zone-compte">
+    <span>{{ user.first_name|default:user.username }}</span>
+    <form action="{% url 'deconnexion' %}" method="post" style="display:inline">
+      {% csrf_token %}
+      <button type="submit" class="lien-deconnexion">Se déconnecter</button>
+    </form>
+  </div>
+  {% endif %}
+</header>
+<div class="conteneur">
+  {% if messages %}
+    <ul class="messages">{% for m in messages %}<li>{{ m }}</li>{% endfor %}</ul>
+  {% endif %}
+  {% block contenu %}{% endblock %}
+</div>
+</body>
+</html>
