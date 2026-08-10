@@ -1,0 +1,551 @@
+{% extends "base.html" %}
+{% block titre %}Résultat{% endblock %}
+{% block content %}
+
+<style>
+    :root {
+        --primary-dark: #1a1a2e;
+        --accent-blue: #4fc3f7;
+        --accent-purple: #7c4dff;
+        --accent-gradient: linear-gradient(135deg, #4fc3f7, #7c4dff);
+        --text-primary: #1a1a2e;
+        --text-secondary: #6b7280;
+        --text-muted: #9ca3af;
+        --bg-card: #ffffff;
+        --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.06);
+        --shadow-hover: 0 8px 40px rgba(0, 0, 0, 0.10);
+        --border-radius: 20px;
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --green: #10b981;
+        --green-bg: rgba(16, 185, 129, 0.12);
+        --orange: #f59e0b;
+        --orange-bg: rgba(245, 158, 11, 0.12);
+        --red: #ef4444;
+        --red-bg: rgba(239, 68, 68, 0.10);
+    }
+
+    /* ===== CONTENEUR ===== */
+    .result-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    /* ===== CARTE ===== */
+    .result-card {
+        background: var(--bg-card);
+        border-radius: var(--border-radius);
+        padding: 3rem 2.5rem 2.8rem;
+        box-shadow: var(--shadow-card);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        text-align: center;
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .result-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: var(--accent-gradient);
+    }
+
+    .result-card:hover {
+        box-shadow: var(--shadow-hover);
+    }
+
+    /* ===== EN-TÊTE ===== */
+    .result-card .badge-type {
+        display: inline-block;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.7rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--accent-purple);
+        font-weight: 600;
+        background: rgba(124, 77, 255, 0.08);
+        padding: 0.3rem 1.2rem;
+        border-radius: 50px;
+        margin-bottom: 0.8rem;
+    }
+
+    .result-card h1 {
+        font-family: 'Fraunces', serif;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin: 0 0 0.5rem 0;
+    }
+
+    .result-card h1 span {
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* ===== SCORE ===== */
+    .score-display {
+        margin: 1.8rem auto 1.5rem;
+        position: relative;
+        display: inline-block;
+    }
+
+    .score-circle {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f8faff, #f0f2f8);
+        border: 6px solid var(--accent-purple);
+        transition: var(--transition);
+        position: relative;
+    }
+
+    .score-circle .score-value {
+        font-family: 'Fraunces', serif;
+        font-size: 3.8rem;
+        font-weight: 700;
+        line-height: 1;
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .score-circle .score-total {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: var(--text-muted);
+        margin-top: -0.2rem;
+    }
+
+    .score-circle .score-label {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-muted);
+        margin-top: 0.3rem;
+    }
+
+    /* Animation de l'anneau */
+    .score-circle .ring {
+        position: absolute;
+        top: -6px;
+        left: -6px;
+        width: calc(100% + 12px);
+        height: calc(100% + 12px);
+        border-radius: 50%;
+        border: 6px solid transparent;
+        border-top-color: var(--accent-purple);
+        border-right-color: var(--accent-blue);
+        opacity: 0.3;
+        animation: spin-ring 4s linear infinite;
+    }
+
+    @keyframes spin-ring {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* ===== COULEURS DU SCORE ===== */
+    .score-circle.perfect {
+        border-color: var(--green);
+        background: var(--green-bg);
+    }
+
+    .score-circle.perfect .score-value {
+        background: linear-gradient(135deg, #10b981, #34d399);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .score-circle.good {
+        border-color: var(--accent-purple);
+        background: rgba(124, 77, 255, 0.06);
+    }
+
+    .score-circle.medium {
+        border-color: var(--orange);
+        background: var(--orange-bg);
+    }
+
+    .score-circle.medium .score-value {
+        background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .score-circle.low {
+        border-color: var(--red);
+        background: var(--red-bg);
+    }
+
+    .score-circle.low .score-value {
+        background: linear-gradient(135deg, #ef4444, #f87171);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* ===== MESSAGE ===== */
+    .result-message {
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin: 1rem 0 0.8rem 0;
+    }
+
+    .result-message .emoji {
+        font-size: 1.3rem;
+    }
+
+    .result-message .highlight {
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 700;
+    }
+
+    /* ===== NOTE ===== */
+    .note-message {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        background: rgba(124, 77, 255, 0.04);
+        border: 1px solid rgba(124, 77, 255, 0.08);
+        border-radius: 10px;
+        padding: 0.8rem 1.2rem;
+        margin: 1.2rem auto 1.5rem;
+        max-width: 420px;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.88rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+    }
+
+    .note-message .icon {
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    /* ===== DÉTAILS ===== */
+    .result-details {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1.2rem 2rem;
+        margin: 1.5rem 0 2rem;
+        padding: 1rem 1.5rem;
+        background: rgba(0, 0, 0, 0.02);
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .result-details .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .result-details .detail-item .label {
+        font-weight: 400;
+    }
+
+    .result-details .detail-item .value {
+        font-weight: 600;
+        color: var(--primary-dark);
+    }
+
+    .result-details .detail-item .value .accent {
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* ===== BOUTON ===== */
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.8rem 2.2rem;
+        background: var(--accent-gradient);
+        color: #ffffff;
+        border-radius: 50px;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: var(--transition);
+        box-shadow: 0 4px 20px rgba(124, 77, 255, 0.20);
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-back:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(124, 77, 255, 0.30);
+        color: #ffffff;
+        text-decoration: none;
+    }
+
+    .btn-back:active {
+        transform: translateY(0);
+    }
+
+    .btn-back .arrow {
+        transition: var(--transition);
+    }
+
+    .btn-back:hover .arrow {
+        transform: translateX(4px);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+        .result-card {
+            padding: 2.2rem 1.8rem 2.2rem;
+            border-radius: 16px;
+        }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+        }
+
+        .score-circle .score-value {
+            font-size: 3.2rem;
+        }
+
+        .result-card h1 {
+            font-size: 1.5rem;
+        }
+
+        .result-details {
+            flex-direction: column;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.8rem 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .result-card {
+            padding: 1.8rem 1.2rem 2rem;
+            border-radius: 14px;
+        }
+
+        .score-circle {
+            width: 130px;
+            height: 130px;
+            border-width: 4px;
+        }
+
+        .score-circle .score-value {
+            font-size: 2.8rem;
+        }
+
+        .score-circle .score-total {
+            font-size: 0.95rem;
+        }
+
+        .result-card h1 {
+            font-size: 1.3rem;
+        }
+
+        .result-message {
+            font-size: 0.9rem;
+        }
+
+        .note-message {
+            font-size: 0.82rem;
+            padding: 0.6rem 1rem;
+        }
+
+        .btn-back {
+            width: 100%;
+            justify-content: center;
+            padding: 0.7rem 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .result-details .detail-item {
+            font-size: 0.8rem;
+        }
+    }
+
+    /* ===== MODE SOMBRE ===== */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --bg-card: rgba(26, 26, 46, 0.95);
+            --text-primary: #f1f1f8;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 8px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .result-card {
+            border-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .result-card h1 {
+            color: #f1f1f8;
+        }
+
+        .score-circle {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: var(--accent-blue);
+        }
+
+        .score-circle .score-total {
+            color: var(--text-muted);
+        }
+
+        .score-circle .score-label {
+            color: var(--text-muted);
+        }
+
+        .score-circle.perfect {
+            background: rgba(16, 185, 129, 0.08);
+            border-color: var(--green);
+        }
+
+        .score-circle.good {
+            background: rgba(124, 77, 255, 0.08);
+            border-color: var(--accent-purple);
+        }
+
+        .score-circle.medium {
+            background: rgba(245, 158, 11, 0.08);
+            border-color: var(--orange);
+        }
+
+        .score-circle.low {
+            background: rgba(239, 68, 68, 0.08);
+            border-color: var(--red);
+        }
+
+        .result-details {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .result-details .detail-item .value {
+            color: #f1f1f8;
+        }
+
+        .note-message {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.06);
+            color: var(--text-secondary);
+        }
+
+        .result-message {
+            color: var(--text-secondary);
+        }
+    }
+</style>
+
+<div class="result-container">
+
+    <div class="result-card">
+
+        <!-- ===== BADGE ===== -->
+        <span class="badge-type">
+            ✦ {{ exercice.get_type_exercice_display }}
+        </span>
+
+        <!-- ===== TITRE ===== -->
+        <h1>{{ exercice.titre }}</h1>
+
+        <!-- ===== SCORE ===== -->
+        {% with percentage=exercice.total_points|add:"0"|divisibleby:2 %}
+        <div class="score-display">
+            <div class="score-circle 
+                {% if tentative.score_obtenu == exercice.total_points %}perfect
+                {% elif tentative.score_obtenu >= exercice.total_points|add:"-2" %}good
+                {% elif tentative.score_obtenu >= exercice.total_points|add:"-4" %}medium
+                {% else %}low{% endif %}
+            ">
+                <span class="score-value">{{ tentative.score_obtenu }}</span>
+                <span class="score-total">/ {{ exercice.total_points }}</span>
+                <span class="score-label">Résultat</span>
+                <span class="ring"></span>
+            </div>
+        </div>
+        {% endwith %}
+
+        <!-- ===== MESSAGE ===== -->
+        <p class="result-message">
+            {% if tentative.score_obtenu == exercice.total_points %}
+                <span class="emoji">🎉</span> Parfait ! Tu as obtenu <span class="highlight">tous les points</span>.
+            {% elif tentative.score_obtenu >= exercice.total_points|add:"-2" %}
+                <span class="emoji">🌟</span> Excellent travail ! Très bon score.
+            {% elif tentative.score_obtenu >= exercice.total_points|add:"-4" %}
+                <span class="emoji">💪</span> Bien joué ! Continue comme ça.
+            {% elif tentative.score_obtenu >= exercice.total_points|add:"-6" %}
+                <span class="emoji">📚</span> Peux mieux faire, révise encore un peu.
+            {% else %}
+                <span class="emoji">🤔</span> Reprends les notions et retente ta chance.
+            {% endif %}
+        </p>
+
+        <!-- ===== NOTE MANUELLE ===== -->
+        {% if exercice.a_correction_manuelle %}
+            <div class="note-message">
+                <span class="icon">✏️</span>
+                <span>
+                    Ce score peut encore évoluer : certaines questions seront notées manuellement par ton enseignant.
+                </span>
+            </div>
+        {% endif %}
+
+        <!-- ===== DÉTAILS ===== -->
+        <div class="result-details">
+            <div class="detail-item">
+                <span class="label">📅 Date :</span>
+                <span class="value">{{ tentative.date_soumission|date:"d/m/Y H:i" }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">📊 Type :</span>
+                <span class="value"><span class="accent">{{ exercice.get_type_exercice_display }}</span></span>
+            </div>
+            <div class="detail-item">
+                <span class="label">🏆 Score :</span>
+                <span class="value">
+                    <span class="accent">{{ tentative.score_obtenu }}</span> / {{ exercice.total_points }}
+                </span>
+            </div>
+        </div>
+
+        <!-- ===== BOUTON ===== -->
+        <a href="{% url 'liste_exercices' %}" class="btn-back">
+            📚 Retour aux exercices
+            <span class="arrow">→</span>
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

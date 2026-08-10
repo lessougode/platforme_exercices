@@ -1,0 +1,606 @@
+{% extends "base.html" %}
+{% block titre %}Historique{% endblock %}
+{% block content %}
+
+<style>
+    :root {
+        --primary-dark: #1a1a2e;
+        --accent-blue: #4fc3f7;
+        --accent-purple: #7c4dff;
+        --accent-gradient: linear-gradient(135deg, #4fc3f7, #7c4dff);
+        --text-primary: #1a1a2e;
+        --text-secondary: #6b7280;
+        --text-muted: #9ca3af;
+        --bg-card: #ffffff;
+        --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.06);
+        --shadow-hover: 0 8px 35px rgba(0, 0, 0, 0.10);
+        --border-radius: 16px;
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --green: #10b981;
+        --green-bg: rgba(16, 185, 129, 0.10);
+        --orange: #f59e0b;
+        --orange-bg: rgba(245, 158, 11, 0.10);
+    }
+
+    /* ===== EN-TÊTE ===== */
+    .page-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .page-header .badge-header {
+        display: inline-block;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.7rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--accent-purple);
+        font-weight: 600;
+        background: rgba(124, 77, 255, 0.08);
+        padding: 0.3rem 1.4rem;
+        border-radius: 50px;
+        margin-bottom: 0.6rem;
+    }
+
+    .page-header h1 {
+        font-family: 'Fraunces', serif;
+        font-size: 2.4rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--primary-dark);
+    }
+
+    .page-header h1 span {
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .page-header p {
+        color: var(--text-secondary);
+        font-family: 'Inter', sans-serif;
+        font-size: 0.95rem;
+        margin: 0.4rem 0 0 0;
+    }
+
+    /* ===== STATS ===== */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 1.2rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--bg-card);
+        border-radius: var(--border-radius);
+        padding: 1.2rem 1.5rem;
+        box-shadow: var(--shadow-card);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        transition: var(--transition);
+        text-align: center;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-hover);
+    }
+
+    .stat-card .stat-number {
+        font-family: 'Fraunces', serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        line-height: 1.2;
+    }
+
+    .stat-card .stat-number .accent {
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .stat-card .stat-label {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.78rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-top: 0.2rem;
+    }
+
+    /* ===== CARTES ===== */
+    .history-card {
+        background: var(--bg-card);
+        border-radius: var(--border-radius);
+        padding: 1.5rem 1.8rem 1.8rem;
+        box-shadow: var(--shadow-card);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        margin-bottom: 2rem;
+        transition: var(--transition);
+    }
+
+    .history-card:hover {
+        box-shadow: var(--shadow-hover);
+    }
+
+    .history-card .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.2rem;
+        padding-bottom: 0.6rem;
+        border-bottom: 2px solid rgba(0, 0, 0, 0.04);
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .history-card .card-header h3 {
+        font-family: 'Fraunces', serif;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0;
+        color: var(--primary-dark);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .history-card .card-header h3 .icon {
+        font-size: 1.1rem;
+    }
+
+    .history-card .card-header .count-badge {
+        background: rgba(124, 77, 255, 0.10);
+        color: var(--accent-purple);
+        font-family: 'Inter', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.2rem 0.8rem;
+        border-radius: 50px;
+    }
+
+    /* ===== TABLEAUX ===== */
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .history-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.88rem;
+        min-width: 560px;
+    }
+
+    .history-table th {
+        text-align: left;
+        font-weight: 600;
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 0.5rem 0.6rem 0.7rem 0.6rem;
+        border-bottom: 2px solid rgba(0, 0, 0, 0.06);
+        white-space: nowrap;
+    }
+
+    .history-table th:first-child {
+        padding-left: 0;
+    }
+
+    .history-table td {
+        padding: 0.7rem 0.6rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        color: var(--text-primary);
+        vertical-align: middle;
+    }
+
+    .history-table td:first-child {
+        padding-left: 0;
+    }
+
+    .history-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .history-table .title-cell {
+        font-weight: 600;
+        color: var(--primary-dark);
+    }
+
+    .history-table .title-cell a {
+        color: var(--primary-dark);
+        text-decoration: none;
+        transition: var(--transition);
+    }
+
+    .history-table .title-cell a:hover {
+        color: var(--accent-purple);
+    }
+
+    .history-table .score-cell {
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        color: var(--primary-dark);
+    }
+
+    .history-table .score-cell.high {
+        color: var(--green);
+    }
+
+    .history-table .score-cell.medium {
+        color: var(--orange);
+    }
+
+    .history-table .score-cell.low {
+        color: #ef4444;
+    }
+
+    .history-table .date-cell {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+
+    .history-table .action-cell a {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.8rem;
+        color: var(--accent-purple);
+        text-decoration: none;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.2rem;
+    }
+
+    .history-table .action-cell a:hover {
+        color: var(--accent-blue);
+        text-decoration: underline;
+    }
+
+    /* ===== BADGES ===== */
+    .badge {
+        display: inline-block;
+        padding: 0.15rem 0.7rem;
+        border-radius: 50px;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.68rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        white-space: nowrap;
+    }
+
+    .badge-exercice {
+        background: rgba(79, 195, 247, 0.12);
+        color: #0284c7;
+    }
+
+    .badge-qcm {
+        background: rgba(124, 77, 255, 0.12);
+        color: #6d28d9;
+    }
+
+    .badge-theorie {
+        background: rgba(16, 185, 129, 0.12);
+        color: #059669;
+    }
+
+    .badge-pratique {
+        background: rgba(245, 158, 11, 0.12);
+        color: #d97706;
+    }
+
+    .badge-corrige {
+        background: var(--green-bg);
+        color: var(--green);
+    }
+
+    .badge-attente {
+        background: rgba(107, 114, 128, 0.08);
+        color: var(--text-muted);
+    }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-row td {
+        padding: 1.5rem 0.6rem !important;
+        text-align: center !important;
+        color: var(--text-muted);
+        font-style: italic;
+        font-size: 0.9rem;
+    }
+
+    .empty-row td::before {
+        content: '📭 ';
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+        .page-header h1 {
+            font-size: 1.8rem;
+        }
+
+        .history-card {
+            padding: 1.2rem 1rem 1.5rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .history-table {
+            font-size: 0.82rem;
+            min-width: 480px;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 0.5rem 0.4rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .page-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .history-card .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .history-table {
+            font-size: 0.78rem;
+            min-width: 400px;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 0.4rem 0.3rem;
+        }
+
+        .badge {
+            font-size: 0.6rem;
+            padding: 0.1rem 0.5rem;
+        }
+    }
+
+    /* ===== MODE SOMBRE ===== */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --bg-card: rgba(26, 26, 46, 0.95);
+            --text-primary: #f1f1f8;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 8px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .page-header {
+            border-bottom-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .page-header h1 {
+            color: #f1f1f8;
+        }
+
+        .history-card {
+            border-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .history-card .card-header {
+            border-bottom-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .history-card .card-header h3 {
+            color: #f1f1f8;
+        }
+
+        .history-table th {
+            border-bottom-color: rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
+        }
+
+        .history-table td {
+            border-bottom-color: rgba(255, 255, 255, 0.04);
+            color: #f1f1f8;
+        }
+
+        .history-table .title-cell {
+            color: #f1f1f8;
+        }
+
+        .history-table .title-cell a {
+            color: #f1f1f8;
+        }
+
+        .history-table .title-cell a:hover {
+            color: var(--accent-blue);
+        }
+
+        .history-table .score-cell {
+            color: #f1f1f8;
+        }
+
+        .stat-card {
+            border-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .stat-card .stat-number {
+            color: #f1f1f8;
+        }
+
+        .badge-attente {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-muted);
+        }
+    }
+</style>
+
+<!-- ===== EN-TÊTE ===== -->
+<div class="page-header">
+    <span class="badge-header">✦ Suivi de progression</span>
+    <h1>📊 <span>Historique</span></h1>
+    <p>Retrouve l'ensemble de tes travaux réalisés</p>
+</div>
+
+<!-- ===== STATISTIQUES ===== -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number"><span class="accent">{{ tentatives|length }}</span></div>
+        <div class="stat-label">Exercices réalisés</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number"><span class="accent">{{ rendus|length }}</span></div>
+        <div class="stat-label">Devoirs envoyés</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">
+            <span class="accent">
+                {% with corriges=rendus|dictsort:"corrige"|length %}
+                    {{ corriges }}
+                {% endwith %}
+            </span>
+        </div>
+        <div class="stat-label">Devoirs corrigés</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">
+            <span class="accent">
+                {% with total=0 %}
+                    {% for t in tentatives %}
+                        {% if t.score_obtenu == t.exercice.total_points %}
+                            {{ forloop.counter }}
+                        {% endif %}
+                    {% endfor %}
+                {% endwith %}
+            </span>
+        </div>
+        <div class="stat-label">Scores parfaits 🎯</div>
+    </div>
+</div>
+
+<!-- ===== EXERCICES RÉALISÉS ===== -->
+<div class="history-card">
+    <div class="card-header">
+        <h3><span class="icon">📝</span> Exercices réalisés</h3>
+        <span class="count-badge">{{ tentatives|length }} exercice{{ tentatives|pluralize }}</span>
+    </div>
+
+    <div class="table-wrapper">
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Exercice</th>
+                    <th>Type</th>
+                    <th>Score</th>
+                    <th>Date</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in tentatives %}
+                    <tr>
+                        <td class="title-cell">
+                            <a href="{% url 'revoir_tentative' t.id %}">{{ t.exercice.titre }}</a>
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ t.exercice.type_exercice }}">
+                                {{ t.exercice.get_type_exercice_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="score-cell 
+                                {% if t.score_obtenu == t.exercice.total_points %}high
+                                {% elif t.score_obtenu >= t.exercice.total_points|add:"-2" %}medium
+                                {% else %}low{% endif %}">
+                                {{ t.score_obtenu }} / {{ t.exercice.total_points }}
+                            </span>
+                        </td>
+                        <td class="date-cell">{{ t.date_soumission|date:"d/m/Y H:i" }}</td>
+                        <td class="action-cell">
+                            <a href="{% url 'revoir_tentative' t.id %}">
+                                🔍 Revoir
+                            </a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr class="empty-row">
+                        <td colspan="5">Aucun exercice terminé pour le moment.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ===== DEVOIRS ENVOYÉS ===== -->
+<div class="history-card">
+    <div class="card-header">
+        <h3><span class="icon">📋</span> Devoirs envoyés</h3>
+        <span class="count-badge">{{ rendus|length }} devoir{{ rendus|pluralize }}</span>
+    </div>
+
+    <div class="table-wrapper">
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Devoir</th>
+                    <th>Date d'envoi</th>
+                    <th>Note</th>
+                    <th>Statut</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rendus %}
+                    <tr>
+                        <td class="title-cell">{{ r.devoir.titre }}</td>
+                        <td class="date-cell">{{ r.date_soumission|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            <span class="score-cell 
+                                {% if r.note and r.note >= 16 %}high
+                                {% elif r.note and r.note >= 12 %}medium
+                                {% elif r.note %}low{% endif %}">
+                                {{ r.note|default:"—" }}
+                                {% if r.note %}/20{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            {% if r.corrige %}
+                                <span class="badge badge-corrige">✅ Corrigé</span>
+                            {% else %}
+                                <span class="badge badge-attente">⏳ En attente</span>
+                            {% endif %}
+                        </td>
+                        <td class="action-cell">
+                            {% if r.fichier %}
+                                <a href="{{ r.fichier.url }}" target="_blank">
+                                    📄 Fichier
+                                </a>
+                            {% else %}
+                                <span style="color:var(--text-muted);font-size:0.75rem;">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr class="empty-row">
+                        <td colspan="5">Aucun devoir envoyé pour le moment.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

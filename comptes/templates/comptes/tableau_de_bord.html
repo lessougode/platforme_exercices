@@ -1,0 +1,651 @@
+{% extends "base.html" %}
+{% block titre %}Tableau de bord{% endblock %}
+{% block content %}
+
+<style>
+    :root {
+        --primary-dark: #1a1a2e;
+        --primary-mid: #16213e;
+        --accent-blue: #4fc3f7;
+        --accent-purple: #7c4dff;
+        --accent-gradient: linear-gradient(135deg, #4fc3f7, #7c4dff);
+        --text-primary: #1a1a2e;
+        --text-secondary: #6b7280;
+        --text-muted: #9ca3af;
+        --bg-card: #ffffff;
+        --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.06);
+        --shadow-hover: 0 8px 35px rgba(0, 0, 0, 0.10);
+        --border-radius: 16px;
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ===== EN-TÊTE ===== */
+    .dashboard-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .dashboard-header .greeting {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .dashboard-header .greeting .wave {
+        font-size: 2rem;
+        line-height: 1;
+    }
+
+    .dashboard-header h1 {
+        font-family: 'Fraunces', serif;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--primary-dark);
+    }
+
+    .dashboard-header h1 span {
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .dashboard-header .date-badge {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+        background: rgba(124, 77, 255, 0.08);
+        padding: 0.4rem 1.2rem;
+        border-radius: 50px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        border: 1px solid rgba(124, 77, 255, 0.06);
+    }
+
+    .dashboard-header .date-badge .calendar-icon {
+        font-size: 0.9rem;
+    }
+
+    /* ===== STATS ===== */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1.2rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--bg-card);
+        border-radius: var(--border-radius);
+        padding: 1.2rem 1.5rem;
+        box-shadow: var(--shadow-card);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        transition: var(--transition);
+        text-align: center;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-hover);
+    }
+
+    .stat-card .stat-number {
+        font-family: 'Fraunces', serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        line-height: 1.2;
+    }
+
+    .stat-card .stat-number .accent {
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .stat-card .stat-label {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.78rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-top: 0.2rem;
+    }
+
+    /* ===== CARTES ===== */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .dashboard-card {
+        background: var(--bg-card);
+        border-radius: var(--border-radius);
+        padding: 1.5rem 1.8rem 1.8rem;
+        box-shadow: var(--shadow-card);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        transition: var(--transition);
+    }
+
+    .dashboard-card:hover {
+        box-shadow: var(--shadow-hover);
+    }
+
+    .dashboard-card.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.2rem;
+        padding-bottom: 0.6rem;
+        border-bottom: 2px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .card-header h3 {
+        font-family: 'Fraunces', serif;
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin: 0;
+        color: var(--primary-dark);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .card-header h3 .icon {
+        font-size: 1.1rem;
+    }
+
+    .card-header .count-badge {
+        background: rgba(124, 77, 255, 0.10);
+        color: var(--accent-purple);
+        font-family: 'Inter', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.2rem 0.7rem;
+        border-radius: 50px;
+    }
+
+    /* ===== ITEMS ===== */
+    .item-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .item-list li {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.6rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .item-list li:last-child {
+        border-bottom: none;
+    }
+
+    .item-list .badge {
+        flex-shrink: 0;
+    }
+
+    .item-list .item-title {
+        font-weight: 600;
+        color: var(--primary-dark);
+        text-decoration: none;
+        transition: var(--transition);
+        font-family: 'Inter', sans-serif;
+        font-size: 0.92rem;
+        flex: 1;
+    }
+
+    .item-list .item-title:hover {
+        color: var(--accent-purple);
+    }
+
+    .item-list .points {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        background: rgba(0, 0, 0, 0.04);
+        padding: 0.15rem 0.6rem;
+        border-radius: 50px;
+        flex-shrink: 0;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 1.5rem 0;
+        color: var(--text-muted);
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9rem;
+    }
+
+    .empty-state .empty-icon {
+        font-size: 2rem;
+        display: block;
+        margin-bottom: 0.4rem;
+        opacity: 0.5;
+    }
+
+    /* ===== TABLEAU ===== */
+    .results-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.88rem;
+    }
+
+    .results-table th {
+        text-align: left;
+        font-weight: 600;
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 0.4rem 0.4rem 0.6rem 0;
+        border-bottom: 2px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .results-table td {
+        padding: 0.6rem 0.4rem 0.6rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        color: var(--text-primary);
+    }
+
+    .results-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .results-table .score {
+        font-weight: 700;
+        font-family: 'Inter', sans-serif;
+        color: var(--primary-dark);
+    }
+
+    .results-table .score.high {
+        color: #10b981;
+    }
+
+    .results-table .score.medium {
+        color: #f59e0b;
+    }
+
+    .results-table .score.low {
+        color: #ef4444;
+    }
+
+    .results-table .date {
+        color: var(--text-muted);
+        font-size: 0.78rem;
+    }
+
+    /* ===== BOUTONS ===== */
+    .btn-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--accent-purple);
+        text-decoration: none;
+        transition: var(--transition);
+        margin-top: 0.8rem;
+    }
+
+    .btn-link:hover {
+        color: var(--accent-blue);
+        gap: 0.7rem;
+    }
+
+    .btn-link .arrow {
+        transition: var(--transition);
+    }
+
+    .btn-link:hover .arrow {
+        transform: translateX(4px);
+    }
+
+    /* ===== BADGES ===== */
+    .badge {
+        display: inline-block;
+        padding: 0.15rem 0.7rem;
+        border-radius: 50px;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        flex-shrink: 0;
+    }
+
+    .badge-exercice {
+        background: rgba(79, 195, 247, 0.15);
+        color: #0284c7;
+    }
+
+    .badge-qcm {
+        background: rgba(124, 77, 255, 0.12);
+        color: #6d28d9;
+    }
+
+    .badge-theorie {
+        background: rgba(16, 185, 129, 0.12);
+        color: #059669;
+    }
+
+    .badge-pratique {
+        background: rgba(245, 158, 11, 0.12);
+        color: #d97706;
+    }
+
+    .badge-fichier {
+        background: rgba(107, 114, 128, 0.10);
+        color: #4b5563;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .dashboard-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.8rem;
+        }
+
+        .dashboard-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .dashboard-card {
+            padding: 1.2rem 1.2rem 1.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .dashboard-header .greeting .wave {
+            font-size: 1.5rem;
+        }
+
+        .dashboard-header h1 {
+            font-size: 1.3rem;
+        }
+
+        .results-table {
+            font-size: 0.8rem;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 0.4rem 0.2rem;
+        }
+
+        .item-list .item-title {
+            font-size: 0.85rem;
+        }
+    }
+
+    /* ===== MODE SOMBRE ===== */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --bg-card: rgba(26, 26, 46, 0.95);
+            --text-primary: #f1f1f8;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 8px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .dashboard-header {
+            border-bottom-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .dashboard-header h1 {
+            color: #f1f1f8;
+        }
+
+        .dashboard-card {
+            border-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .card-header {
+            border-bottom-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .card-header h3 {
+            color: #f1f1f8;
+        }
+
+        .item-list li {
+            border-bottom-color: rgba(255, 255, 255, 0.04);
+        }
+
+        .item-list .item-title {
+            color: #f1f1f8;
+        }
+
+        .item-list .points {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-secondary);
+        }
+
+        .results-table td {
+            border-bottom-color: rgba(255, 255, 255, 0.04);
+            color: #f1f1f8;
+        }
+
+        .results-table th {
+            border-bottom-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .stat-card .stat-number {
+            color: #f1f1f8;
+        }
+
+        .dashboard-header .date-badge {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.04);
+            color: var(--text-secondary);
+        }
+    }
+</style>
+
+<!-- ===== EN-TÊTE ===== -->
+<div class="dashboard-header">
+    <div class="greeting">
+        <span class="wave">👋</span>
+        <h1>Bonjour <span>{{ user.first_name|default:user.username }}</span></h1>
+    </div>
+    <div class="date-badge">
+        <span class="calendar-icon">📅</span>
+        {% now "l j F Y" %}
+    </div>
+</div>
+
+<!-- ===== STATISTIQUES ===== -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number"><span class="accent">{{ exercices_a_faire|length }}</span></div>
+        <div class="stat-label">Exercices à faire</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number"><span class="accent">{{ derniers_resultats|length }}</span></div>
+        <div class="stat-label">Résultats récents</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number"><span class="accent">{{ devoirs_actifs|length }}</span></div>
+        <div class="stat-label">Devoirs en cours</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number"><span class="accent">{{ cours_recents|length }}</span></div>
+        <div class="stat-label">Cours récents</div>
+    </div>
+</div>
+
+<!-- ===== GRILLE DES CARTES ===== -->
+<div class="dashboard-grid">
+
+    <!-- EXERCICES À FAIRE -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><span class="icon">📝</span> Exercices à faire</h3>
+            <span class="count-badge">{{ exercices_a_faire|length }}</span>
+        </div>
+        {% if exercices_a_faire %}
+            <ul class="item-list">
+                {% for e in exercices_a_faire|slice:":5" %}
+                    <li>
+                        <span class="badge badge-{{ e.type_exercice }}">{{ e.get_type_exercice_display }}</span>
+                        <a href="{% url 'detail_exercice' e.id %}" class="item-title">{{ e.titre }}</a>
+                        <span class="points">{{ e.total_points }} pts</span>
+                    </li>
+                {% endfor %}
+            </ul>
+            {% if exercices_a_faire|length > 5 %}
+                <a href="{% url 'liste_exercices' %}" class="btn-link">
+                    Voir les {{ exercices_a_faire|length }} exercices
+                    <span class="arrow">→</span>
+                </a>
+            {% else %}
+                <a href="{% url 'liste_exercices' %}" class="btn-link">
+                    Voir tous les exercices
+                    <span class="arrow">→</span>
+                </a>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <span class="empty-icon">🎉</span>
+                Tout est à jour, bravo !
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- DEVOIRS EN COURS -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3><span class="icon">📋</span> Devoirs en cours</h3>
+            <span class="count-badge">{{ devoirs_actifs|length }}</span>
+        </div>
+        {% if devoirs_actifs %}
+            <ul class="item-list">
+                {% for d in devoirs_actifs %}
+                    <li>
+                        <span class="badge badge-fichier">📄</span>
+                        <a href="{% url 'envoyer_devoir' d.id %}" class="item-title">{{ d.titre }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+            <a href="{% url 'liste_devoirs' %}" class="btn-link">
+                Voir tous les devoirs
+                <span class="arrow">→</span>
+            </a>
+        {% else %}
+            <div class="empty-state">
+                <span class="empty-icon">✅</span>
+                Aucun devoir en attente.
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- DERNIERS RÉSULTATS -->
+    <div class="dashboard-card full-width">
+        <div class="card-header">
+            <h3><span class="icon">📊</span> Derniers résultats</h3>
+            <span class="count-badge">{{ derniers_resultats|length }}</span>
+        </div>
+        {% if derniers_resultats %}
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Exercice</th>
+                        <th>Score</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in derniers_resultats|slice:":8" %}
+                        <tr>
+                            <td>{{ t.exercice.titre }}</td>
+                            <td>
+                                <span class="score 
+                                    {% if t.score_obtenu|floatformat:0 >= t.exercice.total_points|floatformat:0|add:"-1" %}high
+                                    {% elif t.score_obtenu|floatformat:0 >= t.exercice.total_points|floatformat:0|divisibleby:2 %}medium
+                                    {% else %}low{% endif %}">
+                                    {{ t.score_obtenu }} / {{ t.exercice.total_points }}
+                                </span>
+                            </td>
+                            <td class="date">{{ t.date_soumission|date:"d/m/Y H:i" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">
+                <span class="empty-icon">📭</span>
+                Aucun exercice terminé pour l'instant.
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- COURS RÉCENTS -->
+    <div class="dashboard-card full-width">
+        <div class="card-header">
+            <h3><span class="icon">📚</span> Cours récents</h3>
+            <span class="count-badge">{{ cours_recents|length }}</span>
+        </div>
+        {% if cours_recents %}
+            <ul class="item-list">
+                {% for c in cours_recents|slice:":6" %}
+                    <li>
+                        <span class="badge badge-fichier">{{ c.get_type_fichier_display }}</span>
+                        <span class="item-title" style="font-weight:500;">{{ c.titre }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+            {% if cours_recents|length > 6 %}
+                <a href="{% url 'liste_cours' %}" class="btn-link">
+                    Voir les {{ cours_recents|length }} cours
+                    <span class="arrow">→</span>
+                </a>
+            {% else %}
+                <a href="{% url 'liste_cours' %}" class="btn-link">
+                    Voir tous les cours
+                    <span class="arrow">→</span>
+                </a>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <span class="empty-icon">📖</span>
+                Aucun cours disponible pour le moment.
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

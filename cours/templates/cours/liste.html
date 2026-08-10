@@ -1,0 +1,507 @@
+{% extends "base.html" %}
+{% block titre %}Cours{% endblock %}
+{% block content %}
+
+<style>
+    :root {
+        --primary-dark: #1a1a2e;
+        --primary-mid: #16213e;
+        --accent-blue: #4fc3f7;
+        --accent-purple: #7c4dff;
+        --accent-gradient: linear-gradient(135deg, #4fc3f7, #7c4dff);
+        --text-primary: #1a1a2e;
+        --text-secondary: #6b7280;
+        --text-muted: #9ca3af;
+        --bg-card: #ffffff;
+        --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.06);
+        --shadow-hover: 0 8px 35px rgba(0, 0, 0, 0.10);
+        --border-radius: 16px;
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ===== EN-TÊTE ===== */
+    .page-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .page-header .badge-header {
+        display: inline-block;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.7rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--accent-purple);
+        font-weight: 600;
+        background: rgba(124, 77, 255, 0.08);
+        padding: 0.3rem 1.4rem;
+        border-radius: 50px;
+        margin-bottom: 0.6rem;
+    }
+
+    .page-header h1 {
+        font-family: 'Fraunces', serif;
+        font-size: 2.4rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--primary-dark);
+    }
+
+    .page-header h1 span {
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .page-header p {
+        color: var(--text-secondary);
+        font-family: 'Inter', sans-serif;
+        font-size: 0.95rem;
+        margin: 0.4rem 0 0 0;
+    }
+
+    /* ===== STATS ===== */
+    .stats-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 1.5rem 2.5rem;
+        margin-bottom: 2rem;
+        padding: 0.8rem 1.5rem;
+        background: rgba(124, 77, 255, 0.04);
+        border-radius: 12px;
+        border: 1px solid rgba(124, 77, 255, 0.06);
+    }
+
+    .stats-bar .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .stats-bar .stat-item .stat-number {
+        font-weight: 700;
+        color: var(--primary-dark);
+        font-size: 1.1rem;
+    }
+
+    .stats-bar .stat-item .stat-number .accent {
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* ===== GRILLE ===== */
+    .courses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+    }
+
+    /* ===== CARTE ===== */
+    .course-card {
+        background: var(--bg-card);
+        border-radius: var(--border-radius);
+        padding: 1.8rem 1.8rem 1.8rem;
+        box-shadow: var(--shadow-card);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        transition: var(--transition);
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .course-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--accent-gradient);
+        opacity: 0;
+        transition: var(--transition);
+    }
+
+    .course-card:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--shadow-hover);
+    }
+
+    .course-card:hover::before {
+        opacity: 1;
+    }
+
+    .course-card .card-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 0.8rem;
+    }
+
+    .course-card .card-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        flex-shrink: 0;
+        background: rgba(124, 77, 255, 0.08);
+    }
+
+    .course-card .card-icon.document {
+        background: rgba(79, 195, 247, 0.12);
+    }
+
+    .course-card .card-icon.video {
+        background: rgba(239, 68, 68, 0.10);
+    }
+
+    .course-card .card-icon.audio {
+        background: rgba(16, 185, 129, 0.10);
+    }
+
+    .course-card .card-icon.image {
+        background: rgba(245, 158, 11, 0.10);
+    }
+
+    .course-card .card-icon.other {
+        background: rgba(107, 114, 128, 0.08);
+    }
+
+    .course-card .card-title {
+        font-family: 'Fraunces', serif;
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: var(--primary-dark);
+        margin: 0 0 0.3rem 0;
+        flex: 1;
+    }
+
+    .course-card .card-description {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin: 0 0 1.2rem 0;
+        flex: 1;
+    }
+
+    .course-card .card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.04);
+        margin-top: auto;
+    }
+
+    .course-card .card-footer .meta {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .course-card .card-footer .meta span {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    /* ===== BADGES ===== */
+    .badge-type {
+        display: inline-block;
+        padding: 0.2rem 0.8rem;
+        border-radius: 50px;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.68rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .badge-type.document {
+        background: rgba(79, 195, 247, 0.12);
+        color: #0284c7;
+    }
+
+    .badge-type.video {
+        background: rgba(239, 68, 68, 0.10);
+        color: #dc2626;
+    }
+
+    .badge-type.audio {
+        background: rgba(16, 185, 129, 0.10);
+        color: #059669;
+    }
+
+    .badge-type.image {
+        background: rgba(245, 158, 11, 0.10);
+        color: #d97706;
+    }
+
+    .badge-type.other {
+        background: rgba(107, 114, 128, 0.08);
+        color: #4b5563;
+    }
+
+    /* ===== BOUTON ===== */
+    .btn-download {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1.2rem;
+        background: var(--accent-gradient);
+        color: #ffffff;
+        border-radius: 50px;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.82rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: var(--transition);
+        box-shadow: 0 4px 16px rgba(124, 77, 255, 0.20);
+        border: none;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .btn-download:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(124, 77, 255, 0.30);
+        color: #ffffff;
+        text-decoration: none;
+    }
+
+    .btn-download:active {
+        transform: translateY(0);
+    }
+
+    .btn-download .icon {
+        font-size: 1rem;
+    }
+
+    .btn-download .arrow {
+        transition: var(--transition);
+    }
+
+    .btn-download:hover .arrow {
+        transform: translateX(3px);
+    }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--bg-card);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-card);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        grid-column: 1 / -1;
+    }
+
+    .empty-state .empty-icon {
+        font-size: 3.5rem;
+        display: block;
+        margin-bottom: 0.8rem;
+        opacity: 0.6;
+    }
+
+    .empty-state h3 {
+        font-family: 'Fraunces', serif;
+        font-size: 1.3rem;
+        color: var(--primary-dark);
+        margin: 0 0 0.3rem 0;
+    }
+
+    .empty-state p {
+        font-family: 'Inter', sans-serif;
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+        .courses-grid {
+            grid-template-columns: 1fr;
+            gap: 1.2rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+        }
+
+        .course-card {
+            padding: 1.5rem 1.5rem 1.5rem;
+        }
+
+        .stats-bar {
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 0.8rem 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .page-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .course-card .card-footer {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .btn-download {
+            justify-content: center;
+        }
+
+        .course-card .card-top {
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+    }
+
+    /* ===== MODE SOMBRE ===== */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --bg-card: rgba(26, 26, 46, 0.95);
+            --text-primary: #f1f1f8;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 8px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .page-header {
+            border-bottom-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .page-header h1 {
+            color: #f1f1f8;
+        }
+
+        .course-card {
+            border-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .course-card .card-title {
+            color: #f1f1f8;
+        }
+
+        .course-card .card-footer {
+            border-top-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .stats-bar {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .stats-bar .stat-item .stat-number {
+            color: #f1f1f8;
+        }
+
+        .empty-state {
+            border-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .empty-state h3 {
+            color: #f1f1f8;
+        }
+    }
+</style>
+
+<!-- ===== EN-TÊTE ===== -->
+<div class="page-header">
+    <span class="badge-header">✦ Ressources pédagogiques</span>
+    <h1>📚 <span>Cours</span></h1>
+    <p>Accède à l'ensemble des supports de formation</p>
+</div>
+
+<!-- ===== STATS ===== -->
+<div class="stats-bar">
+    <div class="stat-item">
+        <span>📄</span>
+        <span><span class="stat-number"><span class="accent">{{ cours|length }}</span></span> cours disponibles</span>
+    </div>
+    <div class="stat-item">
+        <span>📁</span>
+        <span>
+            {% with docs=cours|length %}
+                <span class="stat-number"><span class="accent">{{ docs }}</span></span> ressource{{ docs|pluralize }}
+            {% endwith %}
+        </span>
+    </div>
+    <div class="stat-item">
+        <span>🔄</span>
+        <span>Dernière mise à jour : {% now "d/m/Y" %}</span>
+    </div>
+</div>
+
+<!-- ===== GRILLE ===== -->
+<div class="courses-grid">
+    {% for c in cours %}
+        <div class="course-card">
+            <div class="card-top">
+                <div>
+                    <span class="badge-type {{ c.get_type_fichier|lower }}">
+                        {{ c.get_type_fichier_display }}
+                    </span>
+                    <h3 class="card-title">{{ c.titre }}</h3>
+                </div>
+                <div class="card-icon 
+                    {% if c.get_type_fichier == 'document' %}document
+                    {% elif c.get_type_fichier == 'video' %}video
+                    {% elif c.get_type_fichier == 'audio' %}audio
+                    {% elif c.get_type_fichier == 'image' %}image
+                    {% else %}other{% endif %}">
+                    {% if c.get_type_fichier == 'document' %}📄
+                    {% elif c.get_type_fichier == 'video' %}🎬
+                    {% elif c.get_type_fichier == 'audio' %}🎧
+                    {% elif c.get_type_fichier == 'image' %}🖼️
+                    {% else %}📁{% endif %}
+                </div>
+            </div>
+
+            <p class="card-description">
+                {{ c.description|default:"Aucune description disponible." }}
+            </p>
+
+            <div class="card-footer">
+                <div class="meta">
+                    <span>📎 {{ c.fichier.name|slice:"-10:" }}</span>
+                    <span>📅 {{ c.date_creation|date:"d/m/Y"|default:"N/A" }}</span>
+                </div>
+                <a href="{{ c.fichier.url }}" target="_blank" class="btn-download">
+                    <span class="icon">⬇️</span>
+                    Ouvrir
+                    <span class="arrow">→</span>
+                </a>
+            </div>
+        </div>
+    {% empty %}
+        <div class="empty-state">
+            <span class="empty-icon">📭</span>
+            <h3>Aucun cours disponible</h3>
+            <p>De nouvelles ressources seront ajoutées prochainement.</p>
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

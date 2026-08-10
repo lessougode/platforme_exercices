@@ -1,0 +1,686 @@
+{% extends "base.html" %}
+{% block titre %}Revoir - {{ tentative.exercice.titre }}{% endblock %}
+{% block content %}
+
+<style>
+    :root {
+        --primary-dark: #1a1a2e;
+        --accent-blue: #4fc3f7;
+        --accent-purple: #7c4dff;
+        --accent-gradient: linear-gradient(135deg, #4fc3f7, #7c4dff);
+        --text-primary: #1a1a2e;
+        --text-secondary: #6b7280;
+        --text-muted: #9ca3af;
+        --bg-card: #ffffff;
+        --bg-paper: #f8faff;
+        --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.06);
+        --shadow-hover: 0 8px 35px rgba(0, 0, 0, 0.10);
+        --border-radius: 16px;
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --line: rgba(0, 0, 0, 0.06);
+        --green: #10b981;
+        --green-bg: rgba(16, 185, 129, 0.10);
+        --red: #ef4444;
+        --red-bg: rgba(239, 68, 68, 0.08);
+        --gold-deep: #7c4dff;
+    }
+
+    /* ===== CONTENEUR ===== */
+    .review-container {
+        max-width: 820px;
+        margin: 0 auto;
+    }
+
+    /* ===== CARTE EXERCICE ===== */
+    .exercise-header {
+        background: var(--bg-card);
+        border-radius: var(--border-radius);
+        padding: 2rem 2.2rem 1.8rem;
+        box-shadow: var(--shadow-card);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 2rem;
+        transition: var(--transition);
+    }
+
+    .exercise-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: var(--accent-gradient);
+    }
+
+    .exercise-header:hover {
+        box-shadow: var(--shadow-hover);
+    }
+
+    .exercise-header .top-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        margin-bottom: 0.6rem;
+    }
+
+    .exercise-header .badge {
+        display: inline-block;
+        padding: 0.25rem 1rem;
+        border-radius: 50px;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .exercise-header .badge-exercice {
+        background: rgba(79, 195, 247, 0.12);
+        color: #0284c7;
+    }
+
+    .exercise-header .badge-qcm {
+        background: rgba(124, 77, 255, 0.12);
+        color: #6d28d9;
+    }
+
+    .exercise-header .badge-theorie {
+        background: rgba(16, 185, 129, 0.12);
+        color: #059669;
+    }
+
+    .exercise-header .badge-pratique {
+        background: rgba(245, 158, 11, 0.12);
+        color: #d97706;
+    }
+
+    .exercise-header .score-badge {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 600;
+        padding: 0.3rem 1.2rem;
+        border-radius: 50px;
+        background: var(--accent-gradient);
+        color: #ffffff;
+        box-shadow: 0 4px 16px rgba(124, 77, 255, 0.20);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .exercise-header .score-badge .label {
+        font-weight: 400;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        opacity: 0.8;
+    }
+
+    .exercise-header h1 {
+        font-family: 'Fraunces', serif;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin: 0 0 0.2rem 0;
+    }
+
+    .exercise-header .submission-date {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .exercise-header .submission-date .icon {
+        font-size: 0.9rem;
+    }
+
+    .exercise-header .note-manuelle {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(124, 77, 255, 0.04);
+        border: 1px solid rgba(124, 77, 255, 0.08);
+        border-radius: 8px;
+        padding: 0.6rem 1rem;
+        margin-top: 0.8rem;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .exercise-header .note-manuelle .icon {
+        font-size: 1rem;
+    }
+
+    /* ===== SUPPORT ===== */
+    .support-content {
+        margin-top: 1.2rem;
+        padding-top: 1.2rem;
+        border-top: 1px solid var(--line);
+    }
+
+    .support-content .support-image {
+        max-width: 100%;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        display: block;
+        margin-bottom: 0.8rem;
+    }
+
+    .support-content .support-text {
+        background: var(--bg-paper);
+        border-left: 4px solid var(--accent-purple);
+        padding: 1rem 1.4rem;
+        border-radius: 0 8px 8px 0;
+        font-family: 'Fraunces', serif;
+        font-size: 0.98rem;
+        color: var(--text-secondary);
+        line-height: 1.7;
+        white-space: pre-line;
+    }
+
+    /* ===== QUESTION ===== */
+    .question-card {
+        background: var(--bg-card);
+        border-radius: var(--border-radius);
+        padding: 1.8rem 2rem 2rem;
+        box-shadow: var(--shadow-card);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        margin-bottom: 1.5rem;
+        transition: var(--transition);
+    }
+
+    .question-card:hover {
+        box-shadow: var(--shadow-hover);
+    }
+
+    .question-card .question-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 0.8rem;
+        padding-bottom: 0.6rem;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .question-card .question-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--accent-gradient);
+        color: white;
+        font-family: 'Fraunces', serif;
+        font-weight: 700;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+
+    .question-card .question-points {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 0.2rem 0.9rem;
+        border-radius: 50px;
+        background: rgba(0, 0, 0, 0.04);
+        color: var(--text-secondary);
+    }
+
+    .question-card .question-points .obtenus {
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 700;
+    }
+
+    .question-card .question-enonce {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.02rem;
+        color: var(--text-primary);
+        line-height: 1.7;
+        white-space: pre-line;
+        margin: 0 0 0.8rem 0;
+    }
+
+    .question-card .question-image {
+        max-width: 100%;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        margin: 0.5rem 0 1rem 0;
+    }
+
+    /* ===== RÉPONSES ===== */
+    .answer-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.6rem;
+        padding: 0.6rem 0.8rem;
+        border-radius: 8px;
+        margin-bottom: 0.3rem;
+        transition: var(--transition);
+        font-family: 'Inter', sans-serif;
+        font-size: 0.92rem;
+        line-height: 1.5;
+        border: 1px solid transparent;
+    }
+
+    .answer-item.correct {
+        background: var(--green-bg);
+        border-color: rgba(16, 185, 129, 0.15);
+    }
+
+    .answer-item.incorrect {
+        background: var(--red-bg);
+        border-color: rgba(239, 68, 68, 0.12);
+    }
+
+    .answer-item.neutral {
+        background: rgba(0, 0, 0, 0.02);
+    }
+
+    .answer-item .icon {
+        flex-shrink: 0;
+        font-size: 1.1rem;
+        margin-top: 0.05rem;
+    }
+
+    .answer-item .content {
+        flex: 1;
+    }
+
+    .answer-item .content .tag {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-left: 0.3rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .answer-item .content .tag.correct-tag {
+        color: var(--green);
+    }
+
+    .answer-item .content .tag.incorrect-tag {
+        color: var(--red);
+    }
+
+    .answer-item .content .expected {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-top: 0.1rem;
+    }
+
+    .answer-item .content .expected strong {
+        color: var(--text-secondary);
+    }
+
+    .answer-item .answer-image {
+        max-width: 180px;
+        border-radius: 6px;
+        margin-top: 0.3rem;
+        border: 1px solid var(--line);
+        display: block;
+    }
+
+    /* ===== RÉPONSE LIBRE ===== */
+    .free-response {
+        background: var(--bg-paper);
+        padding: 0.8rem 1.2rem;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        font-family: 'Inter', sans-serif;
+        font-size: 0.92rem;
+        color: var(--text-secondary);
+        line-height: 1.7;
+        white-space: pre-line;
+        margin: 0.5rem 0;
+    }
+
+    .free-response .empty {
+        color: var(--text-muted);
+        font-style: italic;
+    }
+
+    .free-response-label {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-top: 0.5rem;
+        display: block;
+    }
+
+    /* ===== BOUTON RETOUR ===== */
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--accent-purple);
+        text-decoration: none;
+        transition: var(--transition);
+        margin-top: 0.5rem;
+        padding: 0.5rem 0;
+    }
+
+    .btn-back:hover {
+        color: var(--accent-blue);
+        gap: 0.8rem;
+    }
+
+    .btn-back .arrow {
+        transition: var(--transition);
+    }
+
+    .btn-back:hover .arrow {
+        transform: translateX(-4px);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+        .exercise-header {
+            padding: 1.5rem 1.2rem 1.5rem;
+        }
+
+        .exercise-header h1 {
+            font-size: 1.4rem;
+        }
+
+        .exercise-header .top-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .question-card {
+            padding: 1.2rem 1.2rem 1.5rem;
+        }
+
+        .answer-item {
+            padding: 0.5rem 0.6rem;
+            font-size: 0.88rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .exercise-header {
+            padding: 1.2rem 1rem 1.2rem;
+            border-radius: 12px;
+        }
+
+        .exercise-header h1 {
+            font-size: 1.2rem;
+        }
+
+        .exercise-header .score-badge {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.8rem;
+            align-self: flex-start;
+        }
+
+        .question-card {
+            padding: 1rem 1rem 1.2rem;
+            border-radius: 12px;
+        }
+
+        .question-card .question-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .answer-item .content .tag {
+            font-size: 0.6rem;
+        }
+
+        .btn-back {
+            font-size: 0.85rem;
+        }
+
+        .support-content .support-text {
+            font-size: 0.9rem;
+            padding: 0.8rem 1rem;
+        }
+    }
+
+    /* ===== MODE SOMBRE ===== */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --bg-card: rgba(26, 26, 46, 0.95);
+            --bg-paper: #1a1a2e;
+            --text-primary: #f1f1f8;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 8px 35px rgba(0, 0, 0, 0.4);
+            --line: rgba(255, 255, 255, 0.06);
+            --gold-deep: #7c4dff;
+        }
+
+        .exercise-header {
+            border-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .exercise-header h1 {
+            color: #f1f1f8;
+        }
+
+        .question-card {
+            border-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .question-card .question-enonce {
+            color: #f1f1f8;
+        }
+
+        .question-card .question-header {
+            border-bottom-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .answer-item.neutral {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .free-response {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.06);
+            color: #d1d5db;
+        }
+
+        .support-content .support-text {
+            background: rgba(255, 255, 255, 0.04);
+            color: #d1d5db;
+        }
+
+        .support-content {
+            border-top-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .exercise-header .note-manuelle {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.06);
+            color: var(--text-secondary);
+        }
+
+        .question-card .question-points {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-secondary);
+        }
+
+        .answer-item .content .expected {
+            color: var(--text-muted);
+        }
+
+        .answer-item .content .expected strong {
+            color: var(--text-secondary);
+        }
+
+        .btn-back {
+            color: var(--accent-blue);
+        }
+
+        .btn-back:hover {
+            color: #93c5fd;
+        }
+    }
+</style>
+
+<div class="review-container">
+
+    <!-- ===== EN-TÊTE EXERCICE ===== -->
+    <div class="exercise-header">
+        <div class="top-row">
+            <span class="badge badge-{{ tentative.exercice.type_exercice }}">
+                {{ tentative.exercice.get_type_exercice_display }}
+            </span>
+            <span class="score-badge">
+                <span class="label">Score</span>
+                {{ tentative.score_obtenu }} / {{ tentative.exercice.total_points }}
+            </span>
+        </div>
+
+        <h1>{{ tentative.exercice.titre }}</h1>
+
+        <p class="submission-date">
+            <span class="icon">📅</span>
+            Soumis le {{ tentative.date_soumission|date:"d/m/Y H:i" }}
+        </p>
+
+        {% if tentative.exercice.a_correction_manuelle %}
+            <div class="note-manuelle">
+                <span class="icon">✏️</span>
+                <span>Ce score peut encore évoluer : certaines questions sont notées manuellement par l'enseignant.</span>
+            </div>
+        {% endif %}
+
+        <!-- Support -->
+        {% if tentative.exercice.image_support or tentative.exercice.texte_support %}
+            <div class="support-content">
+                {% if tentative.exercice.image_support %}
+                    <img src="{{ tentative.exercice.image_support.url }}" alt="Support de l'exercice" class="support-image">
+                {% endif %}
+                {% if tentative.exercice.texte_support %}
+                    <div class="support-text">{{ tentative.exercice.texte_support }}</div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- ===== QUESTIONS ===== -->
+    {% for item in details %}
+        <div class="question-card">
+            <div class="question-header">
+                <span class="question-number">{{ forloop.counter }}</span>
+                <span class="question-points">
+                    <span class="obtenus">{{ item.points_obtenus }}</span> / {{ item.question.points }} pt{{ item.question.points|pluralize }}
+                </span>
+            </div>
+
+            <p class="question-enonce">{{ item.question.enonce }}</p>
+
+            {% if item.question.image %}
+                <img src="{{ item.question.image.url }}" alt="Illustration de la question" class="question-image">
+            {% endif %}
+
+            <!-- ===== QCM ===== -->
+            {% if item.question.type_question == 'qcm' %}
+                {% for ligne in item.choix %}
+                    <div class="answer-item 
+                        {% if ligne.choix.est_correct %}correct
+                        {% elif ligne.coche %}incorrect
+                        {% else %}neutral{% endif %}
+                    ">
+                        <span class="icon">
+                            {% if ligne.coche %}✅
+                            {% else %}⬜{% endif %}
+                        </span>
+                        <div class="content">
+                            {{ ligne.choix.texte }}
+                            {% if ligne.choix.image %}
+                                <img src="{{ ligne.choix.image.url }}" alt="" class="answer-image">
+                            {% endif %}
+                            {% if ligne.choix.est_correct %}
+                                <span class="tag correct-tag">✔ Bonne réponse</span>
+                            {% elif ligne.coche %}
+                                <span class="tag incorrect-tag">✘ Incorrect</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+
+            <!-- ===== APPARIEMENT ===== -->
+            {% elif item.question.type_question == 'appariement' %}
+                {% for ligne in item.paires %}
+                    <div class="answer-item {% if ligne.correcte %}correct{% else %}incorrect{% endif %}">
+                        <span class="icon">
+                            {% if ligne.correcte %}✅
+                            {% else %}❌{% endif %}
+                        </span>
+                        <div class="content">
+                            {% if ligne.paire.image_gauche %}
+                                <img src="{{ ligne.paire.image_gauche.url }}" alt="" class="answer-image" style="max-width:120px;">
+                            {% endif %}
+                            <strong>{{ ligne.paire.element_gauche }}</strong> →
+                            <strong>{{ ligne.reponse_donnee|default:"(pas de réponse)" }}</strong>
+                            {% if ligne.correcte %}
+                                <span class="tag correct-tag">✔</span>
+                            {% else %}
+                                <span class="tag incorrect-tag">✘</span>
+                                <span class="expected">Bonne réponse : <strong>{{ ligne.paire.element_droite }}</strong></span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+
+            <!-- ===== TEXTE À TROUS ===== -->
+            {% elif item.question.type_question == 'texte_trou' %}
+                {% for ligne in item.trous %}
+                    <div class="answer-item {% if ligne.correcte %}correct{% else %}incorrect{% endif %}">
+                        <span class="icon">
+                            {% if ligne.correcte %}✅
+                            {% else %}❌{% endif %}
+                        </span>
+                        <div class="content">
+                            Trou {{ ligne.trou.position }} :
+                            <strong>{{ ligne.reponse_donnee|default:"(pas de réponse)" }}</strong>
+                            {% if ligne.correcte %}
+                                <span class="tag correct-tag">✔</span>
+                            {% else %}
+                                <span class="tag incorrect-tag">✘</span>
+                                <span class="expected">Réponse attendue : <strong>{{ ligne.trou.reponses_acceptees }}</strong></span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+
+            <!-- ===== RÉPONSE LIBRE ===== -->
+            {% elif item.question.type_question == 'reponse_libre' %}
+                <div class="free-response">
+                    {{ item.texte_libre|default:"<span class='empty'>Pas de réponse fournie.</span>" }}
+                </div>
+                <span class="free-response-label">📝 Notée manuellement par l'enseignant.</span>
+            {% endif %}
+        </div>
+    {% endfor %}
+
+    <!-- ===== RETOUR ===== -->
+    <a href="{% url 'historique' %}" class="btn-back">
+        ← Retour à l'historique
+    </a>
+
+</div>
+
+{% endblock %}
